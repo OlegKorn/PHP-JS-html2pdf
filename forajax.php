@@ -6,8 +6,12 @@ if (isset($_POST["ajaxbut"]))
 
     echo <<<EOT
     <script> 
-    alert("fsdfsd")
-    </script>
+    var div = document.createElement("div");
+    div.style.cssText = "margin:0 auto; margin-top:.1rem; width:40%; padding:0;"; 
+    div.classList.add("container");
+    div.innerHTML = "<p style='margin: 0; text-align: left; border: 1px dashed #0074D9; padding: .25rem;' class='containerp' style>$ajaxinput</p>";
+    document.body.append(div);
+    </script> 
     EOT;
 }
 
