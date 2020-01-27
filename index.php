@@ -1,5 +1,5 @@
 
-<html>
+<html class="html">
 <form method="POST"> 
   <p><b>Статья на википедии</b><br>
     <input id="i" autocomplete="off" type="text" size="40" name="initialArticle">
@@ -20,16 +20,14 @@
 <script>
   $(document).ready(function() {
     $("#ajaxform").submit(function(event) {
-
       event.preventDefault();
 
       var ajaxinput = $("#ajaxinput").val();
       var ajaxbut = $("#ajaxbut").val();
 
-      $(".ajaxtext").load("forajax.php", {
+      $("#ajaxtext").load("forajax.php", {
         ajaxinput: ajaxinput,
         ajaxbut: ajaxbut
-
       });
     });
   });
@@ -40,9 +38,10 @@
     <input id="ajaxinput" autocomplete="off" type="text" size="40" name="ajaxinput">
     <input id="ajaxbut" name="ajaxsubmit" type="submit" value="Send via AJAX">
   </p>
-  <p class="ajaxtext"></p>
+  <p id="ajaxtext"></p>
 </form>
 
+                
 
 
 

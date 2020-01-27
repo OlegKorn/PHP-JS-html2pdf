@@ -18,8 +18,7 @@ function printMessage(string $mess = NULL, string $url = NULL)
     border: 1px dashed #0074D9;
     padding: .25rem;
     }  
-    </style>
-                 
+    </style>        
     <div class="container">
     <p>$mess $url</p>
     </div>
@@ -33,7 +32,6 @@ function echoJS(string $mess = NULL, string $url, string $tableName = NULL)
     <script>
     var p = document.getElementById("message");
     var i = document.getElementById("i");
-  
     p.innerHTML = "$mess $tableName";
     i.value = "$url";
     i.style.color = "#0044D9;"
