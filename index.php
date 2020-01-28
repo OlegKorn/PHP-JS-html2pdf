@@ -1,18 +1,17 @@
 
 <html class="html">
-<form method="POST"> 
+<form method="POST" id="form"> 
   <p><b>Статья на википедии</b><br>
     <input id="i" autocomplete="off" type="text" size="40" name="initialArticle">
   </p>
   <p>
-    <input name="send" type="submit" value="Показать ссылки из статьи">
+    <input id="show" name="send" type="submit" value="Показать ссылки из статьи">
     <input name="reset" type="submit" value="Очистить">
     <input name="pdf" type="submit" value="Создать PDF">
   </p>
   <p class="foundMessage" id="message"></p>
   <p id="test"></p>
 </form>
-
 
 
 <!--AJAX-->
@@ -33,10 +32,11 @@
   });
 </script>
 
-<form id="ajaxform" action="forajax.php" method="POST"> 
+<form id="ajaxform" method="POST"> 
   <p><b>AJAX / php</b><br>
     <input id="ajaxinput" autocomplete="off" type="text" size="40" name="ajaxinput">
     <input id="ajaxbut" name="ajaxsubmit" type="submit" value="Send via AJAX">
+    <input id="ajaxdelbut" name="ajaxdelete" type="submit" value="Delete via AJAX">
   </p>
   <p id="ajaxtext"></p>
 </form>
@@ -270,7 +270,7 @@ if (isset($_POST['pdf']))
     }
   }
       
-  unset($pdf);
+  /*unset($pdf);
   unset($$links_);
   unset($fullLinks_);
 
@@ -297,7 +297,7 @@ if (isset($_POST['pdf']))
     $db->deleteRow($db_, $tableName, $articleUrl);
 
     printMessage("Создан PDF -------> ", $articleUrl);
-  }
+  }*/
 }
 ?>
 
