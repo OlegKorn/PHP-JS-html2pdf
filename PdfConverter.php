@@ -79,8 +79,8 @@ class PdfLoader
         (strpos($linkDecoded, 'index.php') === false) && (strpos($linkDecoded, 'Файл') === false) && 
         (strpos($linkDecoded, '#') === false) && (strpos($linkDecoded, 'Английский') === false) && 
         (strpos($linkDecoded, 'значения') === false) && (strpos($linkDecoded, 'Шаблон') === false) &&
-        (strpos($linkDecoded, 'Служебная') === false) 
-        && (strpos($linkDecoded, '.jpg') === false)) 
+        (strpos($linkDecoded, 'Служебная') === false) && (strpos($linkDecoded, 'Портал:') === false) &&
+        (strpos($linkDecoded, '.jpg') === false)) 
       {
         
         //add 'https://ru.wikipedia.org' if needed
@@ -206,7 +206,7 @@ class PdfLoader
       $dompdf->render($pdfT);
 
       $output = $dompdf->output();
-      file_put_contents("/opt/lampp/htdocs/wikipdf.ru/Интерфейс/$pdfT.pdf", $output);
+      file_put_contents("/opt/lampp/htdocs/wikipdf.ru/$pdfT.pdf", $output);
               
       //delete variable 
       unset($html);

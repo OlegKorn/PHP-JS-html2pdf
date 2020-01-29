@@ -125,6 +125,11 @@ $infoMessage = null;
 $counter = null;
 
 
+if (isset($_POST['reset'])) 
+{
+    die;
+}
+
 //get initial url html to grab needed links
 if (isset($_POST['send']) && $_POST['initialArticle'] !== '') 
 {
@@ -160,6 +165,7 @@ if (isset($_POST['send']) && $_POST['initialArticle'] !== '')
     //ПОКАЖЕМ ССЫЛКИ 
     $rs = $db->selectAll($db_, $tableName);
     $db->showAll($rs);
+    die;
   }
 
   //IF TABLE EXISTS - IT'S SUPPOSED IT'S ALREADY BEEN IN WORK
@@ -184,7 +190,9 @@ if (isset($_POST['send']) && $_POST['initialArticle'] !== '')
     }
     unset($db);
     unset($db_);
+    die;
   }
+
 }
 
 unset($db);
@@ -196,77 +204,99 @@ unset($fullLinks_);
 //CREATING PDF
 if (isset($_POST['pdf'])) 
 {
-  $url = urldecode($_POST['initialArticle']);
+    $url = urldecode($_POST['initialArticle']);
 
-  $tableName = substr($url, strpos($url, 'wiki/') +5);
-  $tableName = str_replace("(", "_", $tableName);
-  $tableName = str_replace(")", "_", $tableName);
+    $tableName = substr($url, strpos($url, 'wiki/') +5);
+    $tableName = str_replace("(", "_", $tableName);
+    $tableName = str_replace(")", "_", $tableName);
 
-  $db = new DataBase();
-  $db_ = $db->connect();
+    $db = new DataBase();
+    $db_ = $db->connect();
 
-  // IF NOT TABLE EXIST
-  if (!($db->tableExists($db_, $tableName))) 
-  {
-    //CREATE INSTANCE OF PdfLoader()
-    $pdf = new PdfLoader($url);
-    $links_ = $pdf->getLinks();
-    $fullLinks_ = $pdf->purifyLinks($links_);
-
-    //CREATE TABLE
-    $db->createIninitalArticleTable($db_, $tableName);
-    
-    //ВСТАВЛЯЕМ ССЫЛКИ В ТАБЛИЦУ
-    foreach ($fullLinks_ as $row) {
-      $db->insertRow($db_, $tableName, $row);
-    }
-    //ПОКАЖЕМ ССЫЛКИ 
-    $rs = $db->selectAll($db_, $tableName);
-    $db->showAll($rs);
-  }
-
-  //ТАБЛИЦА СУЩЕСТВУЕТ
-  if ($db->tableExists($db_, $tableName)) 
-  {
-    echo "<b>Таблица $tableName существует</b>";
-    
-    //TABLE EMPTY
-    //THIS MEANS IT HAD ALREADY BEEN IN WORK
-    //SO WE MUST DO NOTHING
-    if ($db->isTableEmpty($db_, $tableName)) 
-    { 
-      echo "<b>Таблица $tableName пустая, значит, была в работе...</b><br><b>Не делаем ничего</b><br>";
-    }
-    
-    //ТАБЛИЦА НЕ ПУСТАЯ
-    //ЗНАЧИТ НАДО СКАЧАТЬ ОСТАТКИ СТАТЕЙ
-    //И УДАЛИТЬ ИХ 
-    if ( !($db->isTableEmpty($db_, $tableName)) ) 
+    // IF NOT TABLE EXIST
+    if (!($db->tableExists($db_, $tableName))) 
     {
-      echo "<br><b>Таблица $tableName не пустая</b><br>";
+        //CREATE INSTANCE OF PdfLoader()
+        $pdf = new PdfLoader($url);
+        $links_ = $pdf->getLinks();
+        $fullLinks_ = $pdf->purifyLinks($links_);
 
-      //СКАЧИВАЕМ ОСТАТКИ СТАТЕЙ ИЗ ТАБЛИЦЫ
-      while (TRUE)
-      {
-        //берем статью из БД
-        //для сохранения ПДФ отсечем от ссылки статьи имя
-        $rs = $db->selectFirstRow($db_, $tableName);
-        $row = $rs->fetch_assoc();
-        $articleUrl = trim($row['url']);
+        //CREATE TABLE
+        $db->createIninitalArticleTable($db_, $tableName);
+        
+        //ВСТАВЛЯЕМ ССЫЛКИ В ТАБЛИЦУ
+        foreach ($fullLinks_ as $row) {
+            $db->insertRow($db_, $tableName, $row);
+        }
+        //ПОКАЖЕМ ССЫЛКИ 
+        $rs = $db->selectAll($db_, $tableName);
+        $db->showAll($rs);
+    }
 
-        $pdfTitle = substr($articleUrl, strpos($articleUrl, 'wiki/') +5);
-        $pdfTitle = str_replace("(", "_", $pdfTitle);
-        $pdfTitle = str_replace(")", "_", $pdfTitle);
-
-        //создаем пдф
-        require_once 'PdfConverter.php';
-        $pdf = new PdfLoader($articleUrl);
-        $pdf->savePdf($articleUrl, $pdfTitle);
-
-        //удалить использованную статью
-        $db->deleteRow($db_, $tableName, $articleUrl);
-        printMessage("Создан PDF -------> ", $articleUrl);
+    //ТАБЛИЦА СУЩЕСТВУЕТ
+    if ($db->tableExists($db_, $tableName)) 
+    {
+        echo "<b>Таблица $tableName существует</b>";
+      
+        //TABLE EMPTY
+        //THIS MEANS IT HAD ALREADY BEEN IN WORK
+        //SO WE MUST DO NOTHING
+      if ($db->isTableEmpty($db_, $tableName)) 
+      { 
+          echo "<b>Таблица $tableName пустая, значит, была в работе...</b><br><b>Не делаем ничего</b><br>";
       }
+      
+      //ТАБЛИЦА НЕ ПУСТАЯ
+      //ЗНАЧИТ НАДО СКАЧАТЬ ОСТАТКИ СТАТЕЙ
+      //И УДАЛИТЬ ИХ 
+      if ( !($db->isTableEmpty($db_, $tableName)) ) 
+      {
+          echo "<br><b>Таблица $tableName не пустая</b><br>";
+          echo "<br><b>Вот что осталось в таблице $tableName</b><br>";
+
+          //ПОКАЖЕМ ССЫЛКИ 
+          $rs = $db->selectAll($db_, $tableName);
+          $db->showAll($rs);
+        
+          $downloaded = FALSE;
+          //СКАЧИВАЕМ ОСТАТКИ СТАТЕЙ ИЗ ТАБЛИЦЫ ПОКА ОНА НЕ ПУСТАЯ
+          try {
+
+          while ( !$downloaded )
+          {
+
+              if ($db->isTableEmpty($db_, $tableName)) 
+              { 
+                  echo "<b>Таблица $tableName пустая, скачаны остатки статей";
+                  $downloaded = TRUE;
+              }
+
+              //берем статью из БД
+              //для сохранения ПДФ отсечем от ссылки статьи имя
+              $rs = $db->selectFirstRow($db_, $tableName);
+              $row = $rs->fetch_assoc();
+              $articleUrl = trim($row['url']);
+
+              $pdfTitle = substr($articleUrl, strpos($articleUrl, 'wiki/') +5);
+              $pdfTitle = str_replace("(", "_", $pdfTitle);
+              $pdfTitle = str_replace(")", "_", $pdfTitle);
+
+              //if Warning: file_get_contents(): Filename cannot be empty
+              if (empty($pdfTitle)) 
+              {
+                  echo "<b>Скачалось все.</b>";
+                  die;
+              }
+
+              //создаем пдф
+              require_once 'PdfConverter.php';
+              $pdf = new PdfLoader($articleUrl);
+              $pdf->savePdf($articleUrl, $pdfTitle);
+
+              //удалить использованную статью
+              $db->deleteRow($db_, $tableName, $articleUrl);
+              printMessage("Создан PDF: <b><i>" . $articleUrl . "</i></b>");
+        }
     }
   }
       
