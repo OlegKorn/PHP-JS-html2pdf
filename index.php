@@ -1,4 +1,3 @@
-
 <html class="html">
 <form method="POST" id="form"> 
   <p><b>Статья на википедии</b><br>
@@ -225,7 +224,8 @@ if (isset($_POST['pdf']))
         $db->createIninitalArticleTable($db_, $tableName);
         
         //ВСТАВЛЯЕМ ССЫЛКИ В ТАБЛИЦУ
-        foreach ($fullLinks_ as $row) {
+        foreach ($fullLinks_ as $row) 
+        {
             $db->insertRow($db_, $tableName, $row);
         }
         //ПОКАЖЕМ ССЫЛКИ 
@@ -241,64 +241,65 @@ if (isset($_POST['pdf']))
         //TABLE EMPTY
         //THIS MEANS IT HAD ALREADY BEEN IN WORK
         //SO WE MUST DO NOTHING
-      if ($db->isTableEmpty($db_, $tableName)) 
-      { 
-          echo "<b>Таблица $tableName пустая, значит, была в работе...</b><br><b>Не делаем ничего</b><br>";
-      }
+        if ($db->isTableEmpty($db_, $tableName)) 
+        { 
+            echo "<b>Таблица $tableName пустая, значит, была в работе...</b><br><b>Не делаем ничего</b><br>";
+        }
       
-      //ТАБЛИЦА НЕ ПУСТАЯ
-      //ЗНАЧИТ НАДО СКАЧАТЬ ОСТАТКИ СТАТЕЙ
-      //И УДАЛИТЬ ИХ 
-      if ( !($db->isTableEmpty($db_, $tableName)) ) 
-      {
-          echo "<br><b>Таблица $tableName не пустая</b><br>";
-          echo "<br><b>Вот что осталось в таблице $tableName</b><br>";
+        //ТАБЛИЦА НЕ ПУСТАЯ
+        //ЗНАЧИТ НАДО СКАЧАТЬ ОСТАТКИ СТАТЕЙ
+        //И УДАЛИТЬ ИХ 
+        if ( !($db->isTableEmpty($db_, $tableName)) ) 
+        {
+            echo "<br><b>Таблица $tableName не пустая</b><br>";
+            echo "<br><b>Вот что осталось в таблице $tableName</b><br>";
 
-          //ПОКАЖЕМ ССЫЛКИ 
-          $rs = $db->selectAll($db_, $tableName);
-          $db->showAll($rs);
-        
-          $downloaded = FALSE;
-          //СКАЧИВАЕМ ОСТАТКИ СТАТЕЙ ИЗ ТАБЛИЦЫ ПОКА ОНА НЕ ПУСТАЯ
-          try {
+            //ПОКАЖЕМ ССЫЛКИ 
+            $rs = $db->selectAll($db_, $tableName);
+            $db->showAll($rs);
+          
+            $downloaded = FALSE;
+            //СКАЧИВАЕМ ОСТАТКИ СТАТЕЙ ИЗ ТАБЛИЦЫ ПОКА ОНА НЕ ПУСТАЯ
+            try 
+            {
+                while ( !$downloaded )
+                {
+                    if ($db->isTableEmpty($db_, $tableName)) 
+                    { 
+                        echo "<b>Таблица $tableName пустая, скачаны остатки статей";
+                        $downloaded = TRUE;
+                    }
 
-          while ( !$downloaded )
-          {
+                    //берем статью из БД
+                    //для сохранения ПДФ отсечем от ссылки статьи имя
+                    $rs = $db->selectFirstRow($db_, $tableName);
+                    $row = $rs->fetch_assoc();
+                    $articleUrl = trim($row['url']);
 
-              if ($db->isTableEmpty($db_, $tableName)) 
-              { 
-                  echo "<b>Таблица $tableName пустая, скачаны остатки статей";
-                  $downloaded = TRUE;
-              }
+                    $pdfTitle = substr($articleUrl, strpos($articleUrl, 'wiki/') +5);
+                    $pdfTitle = str_replace("(", "_", $pdfTitle);
+                    $pdfTitle = str_replace(")", "_", $pdfTitle);
 
-              //берем статью из БД
-              //для сохранения ПДФ отсечем от ссылки статьи имя
-              $rs = $db->selectFirstRow($db_, $tableName);
-              $row = $rs->fetch_assoc();
-              $articleUrl = trim($row['url']);
+                    //if Warning: file_get_contents(): Filename cannot be empty
+                    if (empty($pdfTitle)) 
+                    {
+                        echo "<b>Скачалось все.</b>";
+                        die;
+                    }
 
-              $pdfTitle = substr($articleUrl, strpos($articleUrl, 'wiki/') +5);
-              $pdfTitle = str_replace("(", "_", $pdfTitle);
-              $pdfTitle = str_replace(")", "_", $pdfTitle);
+                    //создаем пдф
+                    require_once 'PdfConverter.php';
+                    $pdf = new PdfLoader($articleUrl);
+                    $pdf->savePdf($articleUrl, $pdfTitle);
 
-              //if Warning: file_get_contents(): Filename cannot be empty
-              if (empty($pdfTitle)) 
-              {
-                  echo "<b>Скачалось все.</b>";
-                  die;
-              }
-
-              //создаем пдф
-              require_once 'PdfConverter.php';
-              $pdf = new PdfLoader($articleUrl);
-              $pdf->savePdf($articleUrl, $pdfTitle);
-
-              //удалить использованную статью
-              $db->deleteRow($db_, $tableName, $articleUrl);
-              printMessage("Создан PDF: <b><i>" . $articleUrl . "</i></b>");
+                    //удалить использованную статью
+                    $db->deleteRow($db_, $tableName, $articleUrl);
+                    printMessage("Создан PDF: <b><i>" . $articleUrl . "</i></b>");
+                }
+            }
         }
     }
-  }
+}
       
   /*unset($pdf);
   unset($$links_);
