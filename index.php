@@ -9,7 +9,6 @@
     <input name="pdf" type="submit" value="Создать PDF">
   </p>
   <p class="foundMessage" id="message"></p>
-  <p id="test"></p>
 </form>
 
 
@@ -39,20 +38,6 @@
   </p>
   <p id="ajaxtext"></p>
 </form>
-
-                
-
-
-
-
-
-
-
-
-
-
-
-
 <style>
   form { 
     margin: 0 auto; 
@@ -104,6 +89,7 @@
   }
 </style>
 
+
 <?php
 
 set_time_limit(600);
@@ -134,6 +120,7 @@ if (isset($_POST['send']) && $_POST['initialArticle'] !== '')
 {
   $url = urldecode($_POST['initialArticle']);
   
+  //вставляет в <p class="foundMessage" id="message"></p> текст ссылки
   echoJS("", $url, "");
 
   $pdf = new PdfLoader($url);
@@ -187,6 +174,7 @@ if (isset($_POST['send']) && $_POST['initialArticle'] !== '')
     { 
       echo "<b>Таблица $tableName пустая, значит, была в работе...</b><br><b>Не делаем ничего</b><br>";
     }
+
     unset($db);
     unset($db_);
     die;
@@ -201,9 +189,12 @@ unset($links_);
 unset($fullLinks_);
 
 //CREATING PDF
-if (isset($_POST['pdf'])) 
+if (isset($_POST["pdf"])) 
 {
-    $url = urldecode($_POST['initialArticle']);
+    $url = urldecode($_POST["initialArticle"]);
+
+    //вставляет в <p class="foundMessage" id="message"></p> текст ссылки
+    echoJS("", $url, "");
 
     $tableName = substr($url, strpos($url, 'wiki/') +5);
     $tableName = str_replace("(", "_", $tableName);
@@ -223,6 +214,7 @@ if (isset($_POST['pdf']))
         //CREATE TABLE
         $db->createIninitalArticleTable($db_, $tableName);
         
+
         //ВСТАВЛЯЕМ ССЫЛКИ В ТАБЛИЦУ
         foreach ($fullLinks_ as $row) 
         {
@@ -243,7 +235,7 @@ if (isset($_POST['pdf']))
         //SO WE MUST DO NOTHING
         if ($db->isTableEmpty($db_, $tableName)) 
         { 
-            echo "<b>Таблица $tableName пустая, значит, была в работе...</b><br><b>Не делаем ничего</b><br>";
+            echo "<br><b>Таблица $tableName пустая, значит, была в работе...</b><br><b>Не делаем ничего</b><br>";
         }
       
         //ТАБЛИЦА НЕ ПУСТАЯ
@@ -256,8 +248,16 @@ if (isset($_POST['pdf']))
 
             //ПОКАЖЕМ ССЫЛКИ 
             $rs = $db->selectAll($db_, $tableName);
-            $db->showAll($rs);
-          
+            $allUrl_ = $db->showAll($rs);
+            
+            if ( (!empty($allUrl_)) )
+            {
+                foreach ($allUrl_ as $url_)
+                {
+                    printMessage("Создан PDF -------> ", $url_);      
+                }
+            }
+            
             $downloaded = FALSE;
             //СКАЧИВАЕМ ОСТАТКИ СТАТЕЙ ИЗ ТАБЛИЦЫ ПОКА ОНА НЕ ПУСТАЯ
             try 
@@ -296,10 +296,10 @@ if (isset($_POST['pdf']))
                     $db->deleteRow($db_, $tableName, $articleUrl);
                     printMessage("Создан PDF: <b><i>" . $articleUrl . "</i></b>");
                 }
-            }
+            } catch (Exception $e) { echo 'Выброшено исключение: ',  $e->POSTMessage(), "\n"; } 
         }
     }
-}
+
       
   /*unset($pdf);
   unset($$links_);

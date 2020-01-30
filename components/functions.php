@@ -32,7 +32,7 @@ function echoJS(string $mess = NULL, string $url, string $tableName = NULL)
     <script>
     var p = document.getElementById("message");
     var i = document.getElementById("i");
-    p.innerHTML = "$mess $tableName";
+    p.innerHTML = "$url";
     i.value = "$url";
     i.style.color = "#0044D9;"
     </script>
