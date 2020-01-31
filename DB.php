@@ -16,7 +16,7 @@ class DataBase
     $this->dblocation = "localhost";
     $this->dbname = "wikipdf";
     $this->dbuser = "root";
-    $this->dbpasswd = "pass";
+    $this->dbpasswd = "passw";
   }
 
 

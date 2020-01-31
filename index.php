@@ -2,19 +2,16 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
 <script>
   $(document).ready(function() {
-    $("#form").submit(function(event) {
+
+    $("#show").click(function(event) {
       event.preventDefault();
 
       var i = $("#i").val();
       var show = $("#show").val();
-      var pdf = $("#pdf").val();
-      var reset = $("#reset").val();
 
       $(".container").load("forajax.php", {
         i: i,
         show: show,
-        pdf: pdf,
-        reset: reset,
       });
     });
   });
@@ -97,11 +94,124 @@ error_reporting(E_ALL);
 $infoMessage = null;
 $counter = null;
 
-
-if (isset($_POST['reset'])) 
+//CREATING PDF
+if (isset($_POST["pdf"])) 
 {
-    die;
+    $url = urldecode($_POST["initialArticle"]);
+
+    require_once "DB.php";
+    require_once "PdfConverter.php";
+    require_once "components/functions.php";
+
+    $db = new DataBase();
+    $db_ = $db->connect();
+      
+    //вставляет в <p class="foundMessage" id="message"></p> текст ссылки
+    echoJS("", $url, "");
+
+    $tableName = substr($url, strpos($url, 'wiki/') +5);
+    $tableName = str_replace("(", "_", $tableName);
+    $tableName = str_replace(")", "_", $tableName);
+
+    // IF NOT TABLE EXIST
+    if (!($db->tableExists($db_, $tableName))) 
+    {
+        //CREATE INSTANCE OF PdfLoader()
+        $pdf = new PdfLoader($url);
+        $links_ = $pdf->getLinks();
+        $fullLinks_ = $pdf->purifyLinks($links_);
+
+        //CREATE TABLE
+        $db->createIninitalArticleTable($db_, $tableName);
+        
+        //ВСТАВЛЯЕМ ССЫЛКИ В ТАБЛИЦУ
+        foreach ($fullLinks_ as $row) 
+        {
+            $db->insertRow($db_, $tableName, $row);
+        }
+        //ПОКАЖЕМ ССЫЛКИ 
+        $rs = $db->selectAll($db_, $tableName);
+        $db->showAll($rs);
+    }
+
+    //ТАБЛИЦА СУЩЕСТВУЕТ
+    if ($db->tableExists($db_, $tableName)) 
+    {
+        echo "<b>Таблица $tableName существует</b>";
+      
+        //TABLE EMPTY
+        //THIS MEANS IT HAD ALREADY BEEN IN WORK
+        //SO WE MUST DO NOTHING
+        if ($db->isTableEmpty($db_, $tableName)) 
+        { 
+            echo "<br><b>Таблица $tableName пустая, значит, была в работе...</b><br><b>Не делаем ничего</b><br>";
+        }
+      
+        //ТАБЛИЦА НЕ ПУСТАЯ
+        //ЗНАЧИТ НАДО СКАЧАТЬ ОСТАТКИ СТАТЕЙ
+        //И УДАЛИТЬ ИХ 
+        if ( !($db->isTableEmpty($db_, $tableName)) ) 
+        {
+            echo "<br><b>Таблица $tableName не пустая</b><br>";
+            echo "<br><b>Вот что осталось в таблице $tableName</b><br>";
+
+            //ПОКАЖЕМ ССЫЛКИ 
+            $rs = $db->selectAll($db_, $tableName);
+            $allUrl_ = $db->showAll($rs);
+            
+            if ( (!empty($allUrl_)) )
+            {
+                foreach ($allUrl_ as $url_)
+                {
+                    printMessage("", $url_);      
+                }
+            }
+            
+            echo "<h1>CКАЧИВАЕМ...</h1><br><br>";
+
+            $downloaded = FALSE;
+            //СКАЧИВАЕМ ОСТАТКИ СТАТЕЙ ИЗ ТАБЛИЦЫ ПОКА ОНА НЕ ПУСТАЯ
+            try 
+            {
+                while ( !$downloaded )
+                {
+                    if ($db->isTableEmpty($db_, $tableName)) 
+                    { 
+                        echo "<h2>Таблица $tableName пустая, скачаны остатки статей<h2><br><br>";
+                        $downloaded = TRUE;
+                    }
+
+                    //берем статью из БД
+                    //для сохранения ПДФ отсечем от ссылки статьи имя
+                    $rs = $db->selectFirstRow($db_, $tableName);
+                    $row = $rs->fetch_assoc();
+                    $articleUrl = trim($row['url']);
+
+                    $pdfTitle = substr($articleUrl, strpos($articleUrl, 'wiki/') +5);
+                    $pdfTitle = str_replace("(", "_", $pdfTitle);
+                    $pdfTitle = str_replace(")", "_", $pdfTitle);
+
+                    //if Warning: file_get_contents(): Filename cannot be empty
+                    if (empty($pdfTitle)) 
+                    {
+                        echo "<b>Скачалось все.</b>";
+                        die;
+                    }
+
+                    //создаем пдф
+                    require_once 'PdfConverter.php';
+                    $pdf = new PdfLoader($articleUrl);
+                    $pdf->savePdf($articleUrl, $pdfTitle);
+
+                    //удалить использованную статью
+                    $db->deleteRow($db_, $tableName, $articleUrl);
+                    printMessage("Создан PDF: <b><i>" . $articleUrl . "</i></b>");
+                }
+            } catch (Exception $e) { echo 'Выброшено исключение: ',  $e->POSTMessage(), "\n"; } 
+        }
+    }
 }
+
 
 /*
 //get initial url html to grab needed links
