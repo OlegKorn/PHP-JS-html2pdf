@@ -13,7 +13,6 @@ class PdfLoader
   
   //аттрибут класса
   public $url;
-  
 
   //конструктор класса, который передает атрибуту значение
   public function __construct($url)

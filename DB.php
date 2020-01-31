@@ -28,7 +28,7 @@ class DataBase
     if($db->connect_errno) {
       die("Ошибка доступа к MySQL");
     }
-    echo "DB is connected<br>";
+    echo "DB is connected to<br>";
     return $db;
   }
 
@@ -113,8 +113,10 @@ class DataBase
     while ($row = $rs->fetch_assoc())
     {
       $r = $row['url'];
-      printMessage($r, "");
+      $allUrl[] = $r;
+      //printMessage($r, "");
     }
+    return $allUrl;
   }
 
 

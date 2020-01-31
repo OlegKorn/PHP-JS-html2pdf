@@ -1,3 +1,25 @@
+<!--AJAX-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+<script>
+  $(document).ready(function() {
+    $("#form").submit(function(event) {
+      event.preventDefault();
+
+      var i = $("#i").val();
+      var show = $("#show").val();
+      var pdf = $("#pdf").val();
+      var reset = $("#reset").val();
+
+      $(".container").load("forajax.php", {
+        i: i,
+        show: show,
+        pdf: pdf,
+        reset: reset,
+      });
+    });
+  });
+</script>
+
 <html class="html">
 <form method="POST" id="form"> 
   <p><b>Статья на википедии</b><br>
@@ -5,39 +27,13 @@
   </p>
   <p>
     <input id="show" name="send" type="submit" value="Показать ссылки из статьи">
-    <input name="reset" type="submit" value="Очистить">
-    <input name="pdf" type="submit" value="Создать PDF">
+    <input id="reset" name="reset" type="submit" value="Очистить">
+    <input id="pdf" name="pdf" type="submit" value="Создать PDF">
   </p>
   <p class="foundMessage" id="message"></p>
 </form>
+<div class="container"></div>
 
-
-<!--AJAX-->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
-<script>
-  $(document).ready(function() {
-    $("#ajaxform").submit(function(event) {
-      event.preventDefault();
-
-      var ajaxinput = $("#ajaxinput").val();
-      var ajaxbut = $("#ajaxbut").val();
-
-      $("#ajaxtext").load("forajax.php", {
-        ajaxinput: ajaxinput,
-        ajaxbut: ajaxbut
-      });
-    });
-  });
-</script>
-
-<form id="ajaxform" method="POST"> 
-  <p><b>AJAX / php</b><br>
-    <input id="ajaxinput" autocomplete="off" type="text" size="40" name="ajaxinput">
-    <input id="ajaxbut" name="ajaxsubmit" type="submit" value="Send via AJAX">
-    <input id="ajaxdelbut" name="ajaxdelete" type="submit" value="Delete via AJAX">
-  </p>
-  <p id="ajaxtext"></p>
-</form>
 <style>
   form { 
     margin: 0 auto; 
@@ -97,14 +93,6 @@ set_time_limit(600);
 ini_set("memory_limit", "512M");
 error_reporting(E_ALL);
 
-require_once 'PdfConverter.php';
-require_once 'DB.php';
-
-require_once 'dompdf/autoload.inc.php';
-require_once 'components/functions.php';
-
-use Dompdf\Dompdf;
-use Dompdf\Options;
 
 $infoMessage = null;
 $counter = null;
@@ -115,6 +103,7 @@ if (isset($_POST['reset']))
     die;
 }
 
+/*
 //get initial url html to grab needed links
 if (isset($_POST['send']) && $_POST['initialArticle'] !== '') 
 {
@@ -243,7 +232,7 @@ if (isset($_POST["pdf"]))
         //И УДАЛИТЬ ИХ 
         if ( !($db->isTableEmpty($db_, $tableName)) ) 
         {
-            echo "<br><b>Таблица $tableName не пустая</b><br>";
+            /*echo "<br><b>Таблица $tableName не пустая</b><br>";
             echo "<br><b>Вот что осталось в таблице $tableName</b><br>";
 
             //ПОКАЖЕМ ССЫЛКИ 
@@ -256,8 +245,10 @@ if (isset($_POST["pdf"]))
                 {
                     printMessage("Создан PDF -------> ", $url_);      
                 }
-            }
+            }*/
             
+
+/*
             $downloaded = FALSE;
             //СКАЧИВАЕМ ОСТАТКИ СТАТЕЙ ИЗ ТАБЛИЦЫ ПОКА ОНА НЕ ПУСТАЯ
             try 
@@ -300,7 +291,8 @@ if (isset($_POST["pdf"]))
         }
     }
 
-      
+      */
+
   /*unset($pdf);
   unset($$links_);
   unset($fullLinks_);
@@ -329,7 +321,7 @@ if (isset($_POST["pdf"]))
 
     printMessage("Создан PDF -------> ", $articleUrl);
   }*/
-}
+//}
 ?>
 
 
