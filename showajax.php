@@ -36,6 +36,7 @@ if (isset($_POST["show"]))
         $tableName = substr($url, strpos($url, 'wiki/') +5);
         $tableName = str_replace("(", "_", $tableName);     //delete ( ) from $tableName
         $tableName = str_replace(")", "_", $tableName);     //delete ( ) from $tableName
+        $tableName = str_replace(",", "_", $tableName);
 
         // IF NOT TABLE EXIST
         if (!($db->tableExists($db_, $tableName))) 

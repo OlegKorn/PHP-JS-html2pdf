@@ -9,7 +9,7 @@
       var i = $("#i").val();
       var show = $("#show").val();
 
-      $(".container").load("forajax.php", {
+      $(".container").load("showajax.php", {
         i: i,
         show: show,
       });
@@ -112,6 +112,7 @@ if (isset($_POST["pdf"]))
     $tableName = substr($url, strpos($url, 'wiki/') +5);
     $tableName = str_replace("(", "_", $tableName);
     $tableName = str_replace(")", "_", $tableName);
+    $tableName = str_replace(",", "_", $tableName);
 
     // IF NOT TABLE EXIST
     if (!($db->tableExists($db_, $tableName))) 
@@ -190,6 +191,12 @@ if (isset($_POST["pdf"]))
                     $pdfTitle = substr($articleUrl, strpos($articleUrl, 'wiki/') +5);
                     $pdfTitle = str_replace("(", "_", $pdfTitle);
                     $pdfTitle = str_replace(")", "_", $pdfTitle);
+                    
+                    //if , in $pdfTitle
+                    if (strpos($pdfTitle, ",")) 
+                    {
+                        $pdfTitle = str_replace(",", "_", $pdfTitle);  
+                    }
 
                     //if Warning: file_get_contents(): Filename cannot be empty
                     if (empty($pdfTitle)) 
