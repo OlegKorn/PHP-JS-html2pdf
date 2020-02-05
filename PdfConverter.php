@@ -113,69 +113,12 @@ class PdfLoader
 
 
 
-  /*
-  было
-    public function savePdf($links)
+  public function savePdf($link)
   {
-    foreach($links as $fullLink)
 
-  убрал цикл 
-  */
-
- /*
-  public function savePdf($links)
-  {
-    foreach($links as $fullLink) 
-    {
-
-      $title = substr($fullLink, strpos($fullLink, 'wiki/') +5); 
-      //get html of every article from array[]
-      $html = file_get_contents($fullLink);
-
-      //creating PDFs 
-      try 
-      {
-        $options = new Options();
-        $options->set('defaultFont', 'DejaVu Sans'); 
-        $dompdf = new Dompdf($options);
-
-        //an alleged workout to POST images into pdf
-        //according to https://github.com/dompdf/dompdf/wiki/Usage
-        $context = stream_context_create
-        (
-          [ 
-            'ssl' => 
-            [ 
-              'verify_peer' => FALSE, 
-              'verify_peer_name' => FALSE,
-              'allow_self_signed'=> TRUE 
-            ] 
-          ]
-        );
-            
-        $dompdf->setHttpContext($context);
-
-        //handle $html of an article
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A3', 'landscape');
-        $dompdf->render($title);
-
-        $output = $dompdf->output();
-        file_put_contents("/opt/lampp/htdocs/wikipdf.ru/$title.pdf", $output);
-              
-        //delete variable 
-        unset($html);
-        unset($output);
-        unset($dompdf);
-
-      } catch (Exception $e) { echo 'Выброшено исключение: ',  $e->POSTMessage(), "\n"; } 
-    }
-  }*/
-
-
-  public function savePdf($l, $pdfT)
-  {
-    $html = file_get_contents($l);
+    $title = substr($link, strpos($link, 'wiki/') +5); 
+    //get html of every article from array[]
+    $html = file_get_contents($link);
 
     //creating PDFs 
     try 
@@ -194,25 +137,28 @@ class PdfLoader
             'verify_peer' => FALSE, 
             'verify_peer_name' => FALSE,
             'allow_self_signed'=> TRUE 
-          ]     
+          ] 
         ]
       );
             
       $dompdf->setHttpContext($context);
+
       //handle $html of an article
       $dompdf->loadHtml($html);
-      $dompdf->setPaper('A3', 'landscape');
-      $dompdf->render($pdfT);
 
+      //https://github.com/dompdf/dompdf/issues/2075
+      //this solves the no-images-in-PDF issue
+      $dompdf->set_protocol('http://');
+
+      $dompdf->setPaper('A4', 'landscape');
+      $dompdf->render($title);
       $output = $dompdf->output();
-      file_put_contents("/opt/lampp/htdocs/wikipdf.ru/$pdfT.pdf", $output);
+      file_put_contents("/opt/lampp/htdocs/wikipdf.ru/$title.pdf", $output);
               
-      //delete variable 
+      //delete variables 
       unset($html);
       unset($output);
       unset($dompdf);
-
     } catch (Exception $e) { echo 'Выброшено исключение: ',  $e->POSTMessage(), "\n"; } 
   }
-
 }
