@@ -79,12 +79,13 @@ class PdfLoaderWikiquote
           //decode url to cyrillic
           $linkDecoded = urldecode($link);
 
-          //if url contains garbage, delete 
+          //if url contains garbage, delete these urls
           if ((strpos($linkDecoded, '#') === false) && (strpos($linkDecoded, 'File:') === false) && 
               (strpos($linkDecoded, 'index.php') === false) && (strpos($linkDecoded, 'google') === false) && 
               (strpos($linkDecoded, 'Category:') === false) && (strpos($linkDecoded, 'Special:') === false) &&
               (strpos($linkDecoded, 'Wikipedia') === false) && (strpos($linkDecoded, 'Wikimedia_Commons') === false) && 
-              (strpos($linkDecoded, 'Wikisource') === false) && (strpos($linkDecoded, 'Project_Gutenberg') === false))
+              (strpos($linkDecoded, 'Wikisource') === false) && (strpos($linkDecoded, 'Project_Gutenberg') === false) &&
+              (strpos($linkDecoded, 'Wikiquote:Citing_sources') === false))  
           {
               //if $linkDecoded contains "https://en.wikipedia.org/wiki/" 
               //pass
