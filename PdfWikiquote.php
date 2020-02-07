@@ -2,13 +2,13 @@
 
 require_once 'dompdf/autoload.inc.php';
 require_once 'components/functions.php';
-require_once 'PdfConverter.php';
+
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
 
-class PdfLoader 
+class PdfLoaderWikiquote 
 {
   
   //аттрибут класса
@@ -34,6 +34,11 @@ class PdfLoader
     $dom->loadHTML($html);
 
     $links = [];
+
+    //add initial url in $links
+    //we want to get it too
+    $links[] = $this->url; 
+
     $xPath = new DOMXPath($dom);
     $anchorTags = $xPath->evaluate("//div[@class=\"mw-body-content\"]//a/@href");
 
@@ -54,11 +59,12 @@ class PdfLoader
     $linksChecked = [];
     foreach ($links as $link) 
     {
-      $linkDecoded = urldecode($link);
-      if (!in_array($linkDecoded, $linksChecked)) 
-      {
-        $linksChecked[] = $linkDecoded; 
-      }
+        $linkDecoded = urldecode($link);
+        
+        if (!in_array($linkDecoded, $linksChecked)) 
+        {
+            $linksChecked[] = $linkDecoded; 
+        }
     }
     return $linksChecked;
   }
@@ -66,35 +72,41 @@ class PdfLoader
 
   public function purifyLinks($linksArray) 
   {
-    //handle the links for more usability
-    //get rid of garbage
-    foreach($linksArray as $link) 
-    {
-      //decode url to cyrillic
-      $linkDecoded = urldecode($link);
-
-      //if url contains garbage, delete 
-      if ((strpos($linkDecoded, 'Категори') === false) && (strpos($linkDecoded, 'Википедия') === false) && 
-        (strpos($linkDecoded, 'index.php') === false) && (strpos($linkDecoded, 'Файл') === false) && 
-        (strpos($linkDecoded, '#') === false) && (strpos($linkDecoded, 'Английский') === false) && 
-        (strpos($linkDecoded, 'значения') === false) && (strpos($linkDecoded, 'Шаблон') === false) &&
-        (strpos($linkDecoded, 'Служебная') === false) && (strpos($linkDecoded, 'Портал:') === false) &&
-        (strpos($linkDecoded, '.jpg') === false)) 
+      //handle the links for more usability
+      //get rid of garbage
+      foreach($linksArray as $link) 
       {
-        
-        //add 'https://ru.wikipedia.org' if needed
-        if ($linkDecoded[0] === '/') 
-        {
-          $fullLink  = trim('https://ru.wikipedia.org' . $linkDecoded);
-     
-          //PDF file title
-          $title = substr($fullLink, strpos($fullLink, 'wiki/') +5); 
-          
-          $fullLinks[] = $fullLink;
-        }
+          //decode url to cyrillic
+          $linkDecoded = urldecode($link);
+
+          //if url contains garbage, delete 
+          if ((strpos($linkDecoded, '#') === false) && (strpos($linkDecoded, 'File:') === false) && 
+              (strpos($linkDecoded, 'index.php') === false) && (strpos($linkDecoded, 'google') === false) && 
+              (strpos($linkDecoded, 'Category:') === false) && (strpos($linkDecoded, 'Special:') === false) &&
+              (strpos($linkDecoded, 'Wikipedia') === false) && (strpos($linkDecoded, 'Wikimedia_Commons') === false) && 
+              (strpos($linkDecoded, 'Wikisource') === false) && (strpos($linkDecoded, 'Project_Gutenberg') === false))
+          {
+              //if $linkDecoded contains "https://en.wikipedia.org/wiki/" 
+              //pass
+              if (contains($linkDecoded, 'https://en.wikipedia.org/wiki/'))
+              {
+                  $fullLink = $linkDecoded;
+                  //PDF file title
+                  $title = substr($fullLink, strpos($fullLink, 'wiki/') +5); 
+                  $fullLinks[] = $fullLink;
+              }
+
+              //add 'https://en.wikiquote.org' if needed
+              if ($linkDecoded[0] === '/') 
+              {
+                  $fullLink  = trim('https://en.wikiquote.org' . $linkDecoded);
+                  //PDF file title
+                  $title = substr($fullLink, strpos($fullLink, 'wiki/') +5); 
+                  $fullLinks[] = $fullLink;
+              }
+          }
       }
-    }
-    return $fullLinks;
+      return $fullLinks;
   }
 
 
@@ -159,6 +171,6 @@ class PdfLoader
       unset($html);
       unset($output);
       unset($dompdf);
-    } catch (Exception $e) { echo 'Выброшено исключение: ',  $e->POSTMessage(), "\n"; } 
+    } catch (Exception $e) { echo 'Выброшено исключение: ' .  $e . "\n"; } 
   }
 }

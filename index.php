@@ -19,7 +19,7 @@
 
 <html class="html">
 <form method="POST" id="form"> 
-  <p><b>Статья на википедии</b><br>
+  <p><b>Статья на ru.wikipedia.org || en.wikiquote.org</b><br>
     <input id="i" autocomplete="off" type="text" size="40" name="initialArticle">
   </p>
   <p>
@@ -94,14 +94,31 @@ error_reporting(E_ALL);
 $infoMessage = null;
 $counter = null;
 
+function contains($haystack, $needle)
+{
+    return strpos($haystack, $needle) !== false;
+}
+
 //CREATING PDF
 if (isset($_POST["pdf"])) 
 {
     $url = urldecode($_POST["initialArticle"]);
 
-    require_once "DB.php";
-    require_once "PdfConverter.php";
-    require_once "components/functions.php";
+    if (contains($url, 'ru.wikipedia'))
+    {
+        require_once "DB.php";
+        require_once "PdfWikipedia.php";
+        require_once "components/functions.php";
+        $className = "PdfLoaderWikipedia";
+    }
+    
+    if (contains($url, 'en.wikiquote'))
+    {
+        require_once "DB.php";
+        require_once "PdfWikiquote.php";
+        require_once "components/functions.php";
+        $className = "PdfLoaderWikiquote";
+    }
 
     $db = new DataBase();
     $db_ = $db->connect();
@@ -191,6 +208,7 @@ if (isset($_POST["pdf"]))
                     $pdfTitle = substr($articleUrl, strpos($articleUrl, 'wiki/') +5);
                     $pdfTitle = str_replace("(", "_", $pdfTitle);
                     $pdfTitle = str_replace(")", "_", $pdfTitle);
+                    $pdfTitle = str_replace("/", "_", $pdfTitle);
                     
                     //if , in $pdfTitle
                     if (strpos($pdfTitle, ",")) 
@@ -206,15 +224,14 @@ if (isset($_POST["pdf"]))
                     }
 
                     //создаем пдф
-                    require_once 'PdfConverter.php';
-                    $pdf = new PdfLoader($articleUrl);
+                    $pdf = new $className($articleUrl);
                     $pdf->savePdf($articleUrl);
 
                     //удалить использованную статью
                     $db->deleteRow($db_, $tableName, $articleUrl);
                     printMessage("Создан PDF: <b><i>" . $articleUrl . "</i></b>");
                 }
-            } catch (Exception $e) { echo 'Выброшено исключение: ',  $e->POSTMessage(), "\n"; } 
+            } catch (Exception $e) { echo 'Выброшено исключение: ' . $e . "\n"; } 
         }
     }
 }
