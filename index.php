@@ -13,6 +13,7 @@
         i: i,
         show: show,
       });
+
     });
   });
 </script>
@@ -30,6 +31,18 @@
   <p class="foundMessage" id="message"></p>
 </form>
 <div class="container"></div>
+
+<form method="POST" id="form"> 
+  <p><b>Создадим 1 PDF из 1 статьи en.wikiquote.org</b><br>
+    <input autocomplete="off" type="text" size="40" name="oneArticle">
+  </p>
+  <p>
+    <input id="reset" name="reset" type="submit" value="Очистить">
+    <input name="onePdf" type="submit" value="Создать 1 PDF из данной статьи">
+  </p>
+  <p class="foundMessage" id="message"></p>
+</form>
+<div class="containerOnePdf"></div>
 
 <style>
   form { 
@@ -232,6 +245,82 @@ if (isset($_POST["pdf"]))
                     printMessage("Создан PDF: <b><i>" . $articleUrl . "</i></b>");
                 }
             } catch (Exception $e) { echo 'Выброшено исключение: ' . $e . "\n"; } 
+        }
+    }
+}
+
+
+//CREATE 1 PDF OF 1 ARTICLE en.wikiquote.org
+//get initial url html to grab needed links
+if (isset($_POST["onePdf"])) 
+{
+    if ( $_POST["oneArticle"] !== '' )
+    {
+        $url = trim($_POST["oneArticle"]);
+
+        require_once "DB.php";
+        require_once "PdfWikiquote.php";
+        require_once "components/functions.php";
+
+        $db = new DataBase();
+        $db_ = $db->connect();
+          
+        //вставляет в <p class="foundMessage" id="message"></p> текст ссылки
+        echoJS("", $url, "");
+
+        $pdf = new PdfLoaderWikiquote($url);
+        $tableName = substr($url, strpos($url, 'wiki/') +5);
+        $tableName = str_replace("(", "_", $tableName);     //delete ( ) from $tableName
+        $tableName = str_replace(")", "_", $tableName);     //delete ( ) from $tableName
+        $tableName = str_replace(",", "_", $tableName);
+        $tableName .= "____WIKIQUOTE_ONE_ARTICLE";
+
+        // IF NOT TABLE EXIST
+        if (!($db->tableExists($db_, $tableName))) 
+        {
+            //CREATE TABLE
+            $db->createIninitalArticleTable($db_, $tableName);
+            
+            echo <<<EOT
+            <script> 
+            var div = document.createElement("div");
+            div.style.cssText = "margin:0 auto; margin-top:.1rem; width:40%; padding:0;"; 
+            div.classList.add("container");
+            div.innerHTML = "<p style='margin: 0; text-align: left; border: 1px dashed #0074D9; padding: .25rem;' class='containerp' style>$url</p>";
+            document.body.append(div);
+            </script> 
+            EOT;
+
+            //create PDF
+            $pdfTitle = substr($url, strpos($url, 'wiki/') +5);
+            $pdfTitle = str_replace("(", "_", $pdfTitle);
+            $pdfTitle = str_replace(")", "_", $pdfTitle);
+            $pdfTitle = str_replace("/", "_", $pdfTitle);
+
+            //if , in $pdfTitle
+            if (strpos($pdfTitle, ",")) 
+            {
+                $pdfTitle = str_replace(",", "_", $pdfTitle);  
+            }
+
+            //создаем пдф
+            $pdf = new PdfLoaderWikiquote($url);
+            $pdf->savePdf($url);
+
+            unset($db);
+            unset($db_);
+            unset($pdf);
+        }
+
+        //IF TABLE EXISTS - PDF from $url was already created
+        if ($db->tableExists($db_, $tableName)) 
+        {
+            echo $divStart_pStart . "<b>Таблица <b>$tableName</b> существует</b><br>" . $pEnd . $divEnd;
+            echo $divStart_pStart . "<b>Таблица <b>$tableName</b> существует, значит, статья $url уже конвертирована в PDF...</b><br><b>Не делаем ничего</b><br>" . $pEnd . $divEnd;
+
+            unset($db);
+            unset($db_);
+            die;
         }
     }
 }

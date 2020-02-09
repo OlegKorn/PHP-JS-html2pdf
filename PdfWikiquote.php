@@ -121,6 +121,7 @@ class PdfLoaderWikiquote
       echoJS($fullLink);
       //get html of every article from array[]
       $html = file_get_contents($fullLink);
+      $html = preg_replace('<div class="references".*', '', $html);
     }
   }
 
