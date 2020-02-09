@@ -20,8 +20,8 @@
 <html class="html">
 <body>
 <form method="POST" id="form"> 
-  <p><b>Статья на ru.wikipedia.org || en.wikiquote.org</b><br>
-    <input class="i" id="i" autocomplete="off" type="text" size="40" name="initialArticle">
+  <p><b>Статья на ru.wikipedia.org</b><br>
+    <input class="i" id="i" autocomplete="off" type="text" size="40" name="initialArticle" placeholder="Example: https://ru.wikipedia.org/wiki/Лошади">
   </p>
   <p>
     <input id="show" name="send" type="submit" value="Показать ссылки из статьи">
@@ -33,7 +33,7 @@
 
 <form method="POST" id="form"> 
   <p><b>Создадим 1 PDF из 1 статьи en.wikiquote.org</b><br>
-    <input class="i" id="onePdf" autocomplete="off" type="text" size="40" name="oneArticle">
+    <input class="i" id="onePdf" autocomplete="off" type="text" size="40" name="oneArticle" placeholder="Example: https://en.wikiquote.org/wiki/Naivety">
   </p>
   <p>
     <input id="reset" name="reset" type="submit" value="Очистить">
@@ -141,21 +141,9 @@ if (isset($_POST["pdf"]))
 {
     $url = urldecode($_POST["initialArticle"]);
 
-    if (contains($url, 'ru.wikipedia'))
-    {
-        require_once "DB.php";
-        require_once "PdfWikipedia.php";
-        require_once "components/functions.php";
-        $className = "PdfLoaderWikipedia";
-    }
-    
-    if (contains($url, 'en.wikiquote'))
-    {
-        require_once "DB.php";
-        require_once "PdfWikiquote.php";
-        require_once "components/functions.php";
-        $className = "PdfLoaderWikiquote";
-    }
+    require_once "DB.php";
+    require_once "PdfWikipedia.php";
+    require_once "components/functions.php";
 
     $db = new DataBase();
     $db_ = $db->connect();
@@ -261,7 +249,7 @@ if (isset($_POST["pdf"]))
                     }
 
                     //создаем пдф
-                    $pdf = new $className($articleUrl);
+                    $pdf = new PdfLoaderWikipedia($articleUrl);
                     $pdf->savePdf($articleUrl);
 
                     //удалить использованную статью
