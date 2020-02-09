@@ -13,15 +13,15 @@
         i: i,
         show: show,
       });
-
     });
   });
 </script>
 
 <html class="html">
+<body>
 <form method="POST" id="form"> 
   <p><b>Статья на ru.wikipedia.org || en.wikiquote.org</b><br>
-    <input id="i" autocomplete="off" type="text" size="40" name="initialArticle">
+    <input class="i" id="i" autocomplete="off" type="text" size="40" name="initialArticle">
   </p>
   <p>
     <input id="show" name="send" type="submit" value="Показать ссылки из статьи">
@@ -30,28 +30,38 @@
   </p>
   <p class="foundMessage" id="message"></p>
 </form>
-<div class="container"></div>
 
 <form method="POST" id="form"> 
   <p><b>Создадим 1 PDF из 1 статьи en.wikiquote.org</b><br>
-    <input autocomplete="off" type="text" size="40" name="oneArticle">
+    <input class="i" id="onePdf" autocomplete="off" type="text" size="40" name="oneArticle">
   </p>
   <p>
     <input id="reset" name="reset" type="submit" value="Очистить">
     <input name="onePdf" type="submit" value="Создать 1 PDF из данной статьи">
   </p>
-  <p class="foundMessage" id="message"></p>
+  <p class="foundMessage" id="onePdfMessage"></p>
 </form>
-<div class="containerOnePdf"></div>
+<div class="container"></div>
+</body>
+</html>
 
 <style>
+  body {
+  background-color: #000;
+  background-image: radial-gradient(
+    rgba(0, 150, 0, 0.75), #000 120%
+  );
+  color: #FFF;
+  font: 1.2rem Inconsolata, monospace;
+  text-shadow: 0 0 1px #999;
+  }
+ 
   form { 
     margin: 0 auto; 
-    margin-top: 2rem;
-    border: 2px solid #6807f9;
-    color: #6807f9;
-    width:40%;
-    padding: 1rem;
+    margin-top: .5rem;
+    border: 1px solid #FFF;
+    width: 60%;
+    padding: .5rem;
   }
 
   #input {
@@ -61,12 +71,13 @@
   form * {
     margin: 0 auto;
     margin-top: .25rem;
+    padding: .25rem;
     margin-bottom: .25rem;
     text-align: center;
   }
   
   p {
-    margin: .5rem;
+    margin: .25rem;
   }
   
   .container {
@@ -76,23 +87,36 @@
 
   .foundMessage {
     font-weight: 200;
-    font-style: Helvetica, Arial, sans-serif;
-    color: #6807f9;
-    font-size: 15px;
+    color: #FFF;
+    font: 1rem Inconsolata, monospace;
+    text-shadow: 0 0 5px #C8C8C8;
     margin: .25rem 0;
     padding: .25rem 0;
   }
 
   input {
+    z-index: 100;
+    color: #FFF;
+    background-color: transparent;
+    font: .8rem Inconsolata, monospace;
+    text-shadow: 0 0 5px #C8C8C8;
     margin: .25rem;
+    border: 1px solid #FFF;
+  }
+  input:hover {
+    cursor: pointer;
+    text-shadow: 0 1px 10px #C9C9C9;
   }
 
-  #i {
-    color: "";
-    margin: 0;
-    -ms-text-align-last: left;
-    text-align-last: left;
+  .i {
+    padding: .5rem;
+    width: 80%;
+    margin: .5rem;
   }
+  .i:hover {
+    cursor: auto;
+  }
+
 </style>
 
 
@@ -252,6 +276,13 @@ if (isset($_POST["pdf"]))
 
 //CREATE 1 PDF OF 1 ARTICLE en.wikiquote.org
 //get initial url html to grab needed links
+$divStart_pStart = <<<EOT
+<div class='container'>
+  <p style='font-size: 13px; margin: 0; text-align: left; border: 1px dashed #FFF; padding: .25rem;' class='containerp'>
+EOT;
+$divEnd = "</div>";
+$pEnd = "</p>";
+
 if (isset($_POST["onePdf"])) 
 {
     if ( $_POST["oneArticle"] !== '' )
@@ -265,8 +296,16 @@ if (isset($_POST["onePdf"]))
         $db = new DataBase();
         $db_ = $db->connect();
           
-        //вставляет в <p class="foundMessage" id="message"></p> текст ссылки
-        echoJS("", $url, "");
+        //сохраняет значение инпута и пишет сообщение с $url
+        echo <<<EOL
+        <script>
+        var p = document.getElementById("onePdfMessage");
+        var i = document.getElementById("onePdf");
+        p.innerHTML = "$url";
+        i.value = "$url";
+        i.style.color = "#FFF;"
+        </script>
+        EOL;
 
         $pdf = new PdfLoaderWikiquote($url);
         $tableName = substr($url, strpos($url, 'wiki/') +5);
@@ -280,16 +319,6 @@ if (isset($_POST["onePdf"]))
         {
             //CREATE TABLE
             $db->createIninitalArticleTable($db_, $tableName);
-            
-            echo <<<EOT
-            <script> 
-            var div = document.createElement("div");
-            div.style.cssText = "margin:0 auto; margin-top:.1rem; width:40%; padding:0;"; 
-            div.classList.add("container");
-            div.innerHTML = "<p style='margin: 0; text-align: left; border: 1px dashed #0074D9; padding: .25rem;' class='containerp' style>$url</p>";
-            document.body.append(div);
-            </script> 
-            EOT;
 
             //create PDF
             $pdfTitle = substr($url, strpos($url, 'wiki/') +5);
@@ -306,10 +335,8 @@ if (isset($_POST["onePdf"]))
             //создаем пдф
             $pdf = new PdfLoaderWikiquote($url);
             $pdf->savePdf($url);
-
-            unset($db);
-            unset($db_);
-            unset($pdf);
+            echo "<br><b>Создан PDF из статьи: $url<b><br>"; 
+            die;
         }
 
         //IF TABLE EXISTS - PDF from $url was already created
@@ -320,6 +347,7 @@ if (isset($_POST["onePdf"]))
 
             unset($db);
             unset($db_);
+            unset($pdf);
             die;
         }
     }

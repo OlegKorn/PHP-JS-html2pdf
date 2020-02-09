@@ -14,8 +14,11 @@ function printMessage(string $mess = NULL, string $url = NULL)
     .container p 
     {
     margin: 0;
+    font-size: 14px;
+    font-color: #FFF;
+
     text-align: left;
-    border: 1px dashed #0074D9;
+    border: 1px dashed #FFF;
     padding: .25rem;
     }  
     </style>        
@@ -34,7 +37,7 @@ function echoJS(string $mess = NULL, string $url, string $tableName = NULL)
     var i = document.getElementById("i");
     p.innerHTML = "$url";
     i.value = "$url";
-    i.style.color = "#0044D9;"
+    i.style.color = "#FFF;"
     </script>
     EOT;
 }

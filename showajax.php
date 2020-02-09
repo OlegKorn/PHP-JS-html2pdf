@@ -2,7 +2,7 @@
 
 $divStart_pStart = <<<EOT
 <div class='container'>
-  <p style='margin: 0; text-align: left; border: 1px dashed #0074D9; padding: .25rem;' class='containerp'>
+  <p style='font-size: 16px; margin: 0; text-align: left; border: 1px dashed #FFF; padding: .25rem;' class='containerp'>
 EOT;
 $divEnd = "</div>";
 $pEnd = "</p>";
@@ -66,7 +66,7 @@ if (isset($_POST["show"]))
                     var div = document.createElement("div");
                     div.style.cssText = "margin:0 auto; margin-top:.1rem; width:40%; padding:0;"; 
                     div.classList.add("container");
-                    div.innerHTML = "<p style='margin: 0; text-align: left; border: 1px dashed #0074D9; padding: .25rem;' class='containerp' style>$url</p>";
+                    div.innerHTML = "<p style='font-size: 16px; margin: 0; text-align: left; border: 1px dashed #FFF; padding: .25rem;' class='containerp' style>$url</p>";
                     document.body.append(div);
                     </script> 
                     EOT;
@@ -95,7 +95,7 @@ if (isset($_POST["show"]))
                         var div = document.createElement("div");
                         div.style.cssText = "margin:0 auto; margin-top:.1rem; width:40%; padding:0;"; 
                         div.classList.add("container");
-                        div.innerHTML = "<p style='margin: 0; text-align: left; border: 1px dashed #0074D9; padding: .25rem;' class='containerp' style>$url</p>";
+                        div.innerHTML = "<p style='font-size: 16px; margin: 0; text-align: left; border: 1px dashed #FFF; padding: .25rem;' class='containerp' style>$url</p>";
                         document.body.append(div);
                         </script> 
                         EOT;
@@ -161,7 +161,7 @@ if (isset($_POST["show"]))
                     var div = document.createElement("div");
                     div.style.cssText = "margin:0 auto; margin-top:.1rem; width:40%; padding:0;"; 
                     div.classList.add("container");
-                    div.innerHTML = "<p style='margin: 0; text-align: left; border: 1px dashed #0074D9; padding: .25rem;' class='containerp' style>$url</p>";
+                    div.innerHTML = "<p style='font-size: 16px; margin: 0; text-align: left; border: 1px dashed #FFF; padding: .25rem;' class='containerp' style>$url</p>";
                     document.body.append(div);
                     </script> 
                     EOT;
@@ -190,7 +190,7 @@ if (isset($_POST["show"]))
                         var div = document.createElement("div");
                         div.style.cssText = "margin:0 auto; margin-top:.1rem; width:40%; padding:0;"; 
                         div.classList.add("container");
-                        div.innerHTML = "<p style='margin: 0; text-align: left; border: 1px dashed #0074D9; padding: .25rem;' class='containerp' style>$url</p>";
+                        div.innerHTML = "<p style='font-size: 16px; margin: 0; text-align: left; border: 1px dashed #FFF; padding: .25rem;' class='containerp' style>$url</p>";
                         document.body.append(div);
                         </script> 
                         EOT;
@@ -218,6 +218,5 @@ unset($db_);
 unset($pdf);
 unset($links_);
 unset($fullLinks_);
-
 
 
