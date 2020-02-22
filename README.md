@@ -1,4 +1,4 @@
-# PHP wikipedia articles downloader & PDF converter
+# PHP wikipedia articles downloader & PDF converter (via Dompdf)
 
 ## The main purpose is to obtain & convert & download as PDF-files the articles, contained within certain div in a given initial Wiki-article, passed via input. 
 ## Example:

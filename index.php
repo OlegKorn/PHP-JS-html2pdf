@@ -20,8 +20,8 @@
 <html class="html">
 <body>
 <form method="POST" id="form"> 
-  <p><b>Статья на ru.wikipedia.org</b><br>
-    <input class="i" id="i" autocomplete="off" type="text" size="40" name="initialArticle" placeholder="Example: https://ru.wikipedia.org/wiki/Лошади">
+  <p><b>Статья на ru.wikipedia.org || en.wikipedia.org</b><br>
+    <input class="i" id="i" autocomplete="off" type="text" size="40" name="initialArticle" placeholder="Example: https://ru.wikipedia.org/wiki/Лошади || https://en.wikipedia.org/wiki/Horse">
   </p>
   <p>
     <input id="show" name="send" type="submit" value="Показать ссылки из статьи">
@@ -122,7 +122,7 @@
 
 <?php
 
-set_time_limit(600);
+set_time_limit(6000);
 
 ini_set("memory_limit", "512M");
 error_reporting(E_ALL);
