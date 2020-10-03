@@ -8,7 +8,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 
-class PdfLoaderWikipedia 
+class PdfLoaderWikipedia
 {
   
   //аттрибут класса
@@ -43,9 +43,9 @@ class PdfLoaderWikipedia
       //decoded link
       $aLink = urldecode($anchorTag->nodeValue);
       $links[] = $aLink;
+
       //if link is not already in array:    
-      if (!in_array($aLink, $links)) 
-      {
+      if (!in_array($aLink, $links)) {
         $links[] = $aLink;
       }
     }
@@ -55,10 +55,14 @@ class PdfLoaderWikipedia
     foreach ($links as $link) 
     {
       $linkDecoded = urldecode($link);
+      
       if (!in_array($linkDecoded, $linksChecked)) 
       {
-        $linksChecked[] = $linkDecoded; 
+        if (count($linksChecked) < 30) {
+          $linksChecked[] = $linkDecoded; 
+        }
       }
+
     }
     return $linksChecked;
   }
@@ -151,7 +155,7 @@ class PdfLoaderWikipedia
       $dompdf->setPaper('A4', 'portrait');
       $dompdf->render($title);
       $output = $dompdf->output();
-      file_put_contents("G:/XAMPP/htdocs/wiki_to_pdf", $output);
+      file_put_contents("G:/Documents/WIKIPDF/$title.pdf", $output);
               
       //delete variables 
       unset($html);

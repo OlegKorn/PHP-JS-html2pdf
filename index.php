@@ -160,7 +160,7 @@ if (isset($_POST["pdf"]))
     if (!($db->tableExists($db_, $tableName))) 
     {
         //CREATE INSTANCE OF PdfLoader()
-        $pdf = new PdfLoader($url);
+        $pdf = new PdfLoaderWikipedia($url);
         $links_ = $pdf->getLinks();
         $fullLinks_ = $pdf->purifyLinks($links_);
 
@@ -252,6 +252,8 @@ if (isset($_POST["pdf"]))
                     $pdf = new PdfLoaderWikipedia($articleUrl);
                     $pdf->savePdf($articleUrl);
 
+                    sleep(5);
+
                     //удалить использованную статью
                     $db->deleteRow($db_, $tableName, $articleUrl);
                     printMessage("Создан PDF: <b><i>" . $articleUrl . "</i></b>");
@@ -323,6 +325,9 @@ if (isset($_POST["onePdf"]))
             //создаем пдф
             $pdf = new PdfLoaderWikiquote($url);
             $pdf->savePdf($url);
+
+            sleep(5);
+            
             echo "<br><b>Создан PDF из статьи: $url<b><br>"; 
             die;
         }

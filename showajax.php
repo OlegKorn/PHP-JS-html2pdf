@@ -97,6 +97,7 @@ if (isset($_POST["show"]))
                         div.classList.add("container");
                         div.innerHTML = "<p style='font-size: 16px; margin: 0; text-align: left; border: 1px dashed #FFF; padding: .25rem;' class='containerp' style>$url</p>";
                         document.body.append(div);
+
                         </script> 
                         EOT;
                     }
@@ -224,7 +225,7 @@ if (isset($_POST["show"]))
             //вставляет в <p class="foundMessage" id="message"></p> текст ссылки
             echoJS("", $url, "");
 
-            $pdf = new PdfLoaderWikipediaEn($url);
+            $pdf = new PdfLoaderWikipedia($url);
             $links_ = $pdf->getLinks();
             $fullLinks_ = $pdf->purifyLinks($links_);
 

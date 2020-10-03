@@ -48,9 +48,9 @@ class PdfLoaderWikiquote
       //decoded link
       $aLink = urldecode($anchorTag->nodeValue);
       $links[] = $aLink;
+      
       //if link is not already in array:    
-      if (!in_array($aLink, $links)) 
-      {
+      if (!in_array($aLink, $links)) {
         $links[] = $aLink;
       }
     }
@@ -63,7 +63,9 @@ class PdfLoaderWikiquote
         
         if (!in_array($linkDecoded, $linksChecked)) 
         {
+          if (count($linksChecked) < 30) {
             $linksChecked[] = $linkDecoded; 
+          }
         }
     }
     return $linksChecked;
@@ -167,7 +169,7 @@ class PdfLoaderWikiquote
       $dompdf->setPaper('A4', 'portrait');
       $dompdf->render($title);
       $output = $dompdf->output();
-      file_put_contents("G:/XAMPP/htdocs/wiki_to_pdf/$title.pdf", $output);
+      file_put_contents("G:/Documents/WIKIPDF/$title.pdf", $output);
               
       //delete variables 
       unset($html);
