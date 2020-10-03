@@ -164,10 +164,10 @@ class PdfLoaderWikiquote
       //this solves the no-images-in-PDF issue
       $dompdf->set_protocol('http://');
 
-      $dompdf->setPaper('A4', 'landscape');
+      $dompdf->setPaper('A4', 'portrait');
       $dompdf->render($title);
       $output = $dompdf->output();
-      file_put_contents("/opt/lampp/htdocs/wikipdf.ru/$title.pdf", $output);
+      file_put_contents("G:/XAMPP/htdocs/wiki_to_pdf/$title.pdf", $output);
               
       //delete variables 
       unset($html);
