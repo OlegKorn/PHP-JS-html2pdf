@@ -37,14 +37,14 @@ class Style
      *
      * @var float
      */
-    static $default_font_size = 12;
+    static $default_font_size = 18;
 
     /**
      * Default line height, as a fraction of the font size.
      *
      * @var float
      */
-    static $default_line_height = 1.2;
+    static $default_line_height = 1.1;
 
     /**
      * Default "absolute" font sizes relative to the default font-size
