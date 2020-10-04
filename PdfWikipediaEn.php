@@ -62,7 +62,7 @@ class PdfLoaderWikipedia
         }
       }
     }
-    return $linksChecked;
+    return $linksChecked; //test
   }
 
 
